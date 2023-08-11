@@ -1,6 +1,6 @@
 # Open Circuit Maker website
 
-Source for opencircuitmaker.com website.
+Source for the https://www.opencircuitmaker.com website.
 
 ## License
 
