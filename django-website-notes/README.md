@@ -70,7 +70,12 @@ Then run the site and access it with /admin URL.
 
 Sorry, that part must not be so open.
 
-    cd ~/opencircuitmaker-website
-    touch .gitignore
-    kate .gitignore
-
+```bash
+cd ~/opencircuitmaker-website
+touch .gitignore
+kate .gitignore
+git add .gitignore
+git add django-website-notes/
+git commit -m "start django based website"
+git push
+```
