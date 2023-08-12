@@ -66,9 +66,11 @@ Answer the prompts to set superuser name, e-mail and password.
 
 Then run the site and access it with /admin URL.
 
-### .gitignore the database
+### .gitignore the database, virenv and __pycache__
 
-Sorry, that part must not be so open.
+The database is content not code.
+
+The __pycache__ is not needed in the git repo.
 
 ```bash
 cd ~/opencircuitmaker-website
@@ -78,6 +80,14 @@ git add .gitignore
 git add django-website-notes/
 git commit -m "start django based website"
 git push
+```
+
+For example:
+
+```
+www/ocm/db.sqlite3
+django-venv/
+**/__pycache__/
 ```
 
 ## Go live on a web server
@@ -175,32 +185,48 @@ cd ~
 git clone git@github.com:david-ocm/opencircuitmaker-website.git
 ```
 
+### Update gitignore
+
+The gitignore file should have at least this:
+
+    www/ocm/db.sqlite3
+    django-venv/
+
 ### Create Python virtenv and install Django
 
 ```bash
 cd opencircuitmaker-website/
 python3 -m venv django-venv
 source ./django-venv/bin/activate
+pip install django
 ```
 
 Terminal prompt should change to:
 
     (django-venv) adminusername@hostname:~/opencircuitmaker-website$
 
-### Udate gitignore
+Now install django:
 
+```bash
+pip install django
+```
 
+The output should look like:
 
+```
+Collecting django
+  Using cached Django-4.2.4-py3-none-any.whl (8.0 MB)
+Collecting asgiref<4,>=3.6.0
+  Using cached asgiref-3.7.2-py3-none-any.whl (24 kB)
+Collecting sqlparse>=0.3.1
+  Using cached sqlparse-0.4.4-py3-none-any.whl (41 kB)
+Installing collected packages: sqlparse, asgiref, django
+Successfully installed asgiref-3.7.2 django-4.2.4 sqlparse-0.4.4
+```
 
+### Create database on the server if not already there
 
-
-
-
-
-
-
-
-
-
-
-
+```bash
+cd ~/opencircuitmaker-website/www/ocm
+python manage.py migrate
+```
