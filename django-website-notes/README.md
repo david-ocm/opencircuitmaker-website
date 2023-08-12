@@ -468,3 +468,74 @@ python manage.py collectstatic
 Alternatively, run with the -n option to check the processing for errors without modifying anything.
 
 
+### How to update the web site from GitHub
+
+Log in as root on the server then:
+
+```bash
+cd /var/www/opencircuitmaker-website/
+. ./django-venv/bin/activate
+git pull
+cd www/ocm/
+python manage.py collectstatic
+systemctl restart apache2
+systemctl status apache2
+```
+
+## Create some basic site code using Python and Django
+
+Now that the local development and remote server can share code via GitHub, it is time to start creating the site content.
+
+All of this is done on the development machine, pushed to GitHub, then pulled to the remote server when ready to deploy.
+
+Use [VSCodium](https://vscodium.com/) to open the directory  opencircuitmaker-website/. You can get VSCodium via flatpak/flathub etc.
+
+### Edit www/ocm/urls.py.
+
+At the top of the file, add:
+
+```python
+from django.urls import path, include
+```
+
+Add the include below to urlpatterns:
+
+```python
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('website.urls')),
+]
+```
+
+The empty '' path means the base URL of the site such as something.com/.
+
+### Create a file www/ocm/website/urls.py:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+]
+```
+
+### Edit the file www/ocm/website/views.py:
+
+```python
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html', {})
+```
+
+### Create  a template html file for home
+
+Django uses a template for the  html files, always stored in the same templates directory.
+
+Create a directory www/ocm/website/templates/ and in it create a file home.html:
+
+```html
+<h1>Open Circuit Maker coming soon - under construction!</h1>
+```
+
