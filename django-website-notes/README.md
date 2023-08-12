@@ -38,13 +38,15 @@ python manage.py startapp website
 
 ### Edit settings
 
-    kate ocm/settings.py
+        nano ocm/settings.py
 
-or use nano etc. as editor
-
-Add an element to thje list INSTALLED_APPS []
+Add an element to the list INSTALLED_APPS []
 
         'website',
+
+Set allowed hosts:
+
+        ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "172.187.182.84", "127.0.0.1"]
 
 ### Migrate
 
@@ -228,7 +230,8 @@ The output should look like:
 Collecting django
   Using cached Django-4.2.4-py3-none-any.whl (8.0 MB)
 Collecting asgiref<4,>=3.6.0
-  Using cached asgiref-3.7.2-py3-none-any.whl (24 kB)
+  Using cached asgiref-3.7.2-py3-none-any.whl (24
+ kB)
 Collecting sqlparse>=0.3.1
   Using cached sqlparse-0.4.4-py3-none-any.whl (41 kB)
 Installing collected packages: sqlparse, asgiref, django
@@ -250,7 +253,7 @@ Answer the prompts to set superuser name, e-mail and password.
 Run this from a bash terminal sesion on the local Debian development machine.
 
 ```bash
-scp -r admin@opencircuitmaker.com:/home/admin/opencircuitmaker-website/www/ocm/db.sqlite3 /home/david/opencircuitmaker-website/www/ocm/db.sqlite3
+scp -r admin@opencircuitmaker.com:/var/www/opencircuitmaker-website/www/ocm/db.sqlite3 /home/david/opencircuitmaker-website/www/ocm/db.sqlite3
 ```
 
 ### Copy the local dev machine database to the  website
@@ -258,7 +261,7 @@ scp -r admin@opencircuitmaker.com:/home/admin/opencircuitmaker-website/www/ocm/d
 Run this from a bash terminal sesion on the local Debian development machine.
 
 ```bash
-scp -r /home/localusername/opencircuitmaker-website/www/ocm/db.sqlite3 adminusername@opencircuitmaker.com:/home/adminusername/opencircuitmaker-website/www/ocm/db.sqlite3
+scp -r /home/david/opencircuitmaker-website/www/ocm/db.sqlite3 adminusername@opencircuitmaker.com:/var/www/opencircuitmaker-website/www/ocm/db.sqlite3
 ```
 
 ## Configure the web server for Django
