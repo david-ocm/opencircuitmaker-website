@@ -434,3 +434,37 @@ nano /var/www/opencircuitmaker-website/www/ocm/ocm/settings.py
 ```
 
 After doing so, the site will give "Not Found" when accessed, at least until some content is added via python.
+
+### Add to settings.py to handle static content for serving
+
+```bash
+nano /var/www/opencircuitmaker-website/www/ocm/ocm/settings.py
+```
+Add the following, replacing what is in settings.py:
+
+```python
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+```
+
+At the top of settings.py add
+
+```python
+import os
+````
+
+To create the files in static/.
+
+```bash
+python manage.py collectstatic
+```
+
+Alternatively, run with the -n option to check the processing for errors without modifying anything.
+
+
