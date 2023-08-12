@@ -539,3 +539,35 @@ Create a directory www/ocm/website/templates/ and in it create a file home.html:
 <h1>Open Circuit Maker coming soon - under construction!</h1>
 ```
 
+### Create a template to reuse across all website pages
+
+In templates/ create base.html.
+
+Go to [Bootstrap](https://getbootstrap.com/), select Docs and scroll down to the section "Include Bootstrap's CSS and JS". Copy the code into base.html.
+
+Change the title to "Open Circuit Maker".
+
+Replace line with "Hello World" with:
+
+```html
+{% block content %}
+
+{% endblock %}
+```
+
+Django will pull the content from an html template into the block.
+
+Edit home.html and in the first line add:
+
+```html
+{% extends 'base.html' %}
+```
+
+Then surround the existing html with:
+
+```html
+{% block content %}
+
+{% endblock %}
+```
+
