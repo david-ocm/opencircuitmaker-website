@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i#putg!rescr3cmf017krewzqd5$8qx+d7ykh@3c=baqf)my+l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "172.187.182.84"]
 
