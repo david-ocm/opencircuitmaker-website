@@ -1,7 +1,6 @@
 www/ocm/db.sqlite3
 django-venv/
 **/__pycache__/
-**/*pycache*/
 
 
 
