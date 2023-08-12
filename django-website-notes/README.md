@@ -180,10 +180,22 @@ sudo apt install python3-venv
 
 ### clone site code from GitHub
 
+Connect to bash using SSH as root.
+Configure root to use an administrator login and SSH key to access GitHub.
+
+Delete existing html:
+
 ```bash
-cd ~
+cd /var/www
+rm -rf html
+```
+
+Clone:
+
+```bash
 git clone git@github.com:david-ocm/opencircuitmaker-website.git
 ```
+
 
 ### Update gitignore
 
@@ -195,15 +207,14 @@ The gitignore file should have at least this:
 ### Create Python virtenv and install Django
 
 ```bash
-cd opencircuitmaker-website/
+cd /var/www/opencircuitmaker-website/
 python3 -m venv django-venv
 source ./django-venv/bin/activate
-pip install django
 ```
 
 Terminal prompt should change to:
 
-    (django-venv) adminusername@hostname:~/opencircuitmaker-website$
+    (django-venv) root@localhost:/var/www/opencircuitmaker-website#
 
 Now install django:
 
@@ -224,9 +235,199 @@ Installing collected packages: sqlparse, asgiref, django
 Successfully installed asgiref-3.7.2 django-4.2.4 sqlparse-0.4.4
 ```
 
-### Create database on the server if not already there
+### Create and init the database for this Django project
 
 ```bash
-cd ~/opencircuitmaker-website/www/ocm
+cd /var/www/opencircuitmaker-website/www/ocm
 python manage.py migrate
+./manage.py createsuperuser
 ```
+
+Answer the prompts to set superuser name, e-mail and password.
+
+### Copy the website database to the local dev machine
+
+Run this from a bash terminal sesion on the local Debian development machine.
+
+```bash
+scp -r admin@opencircuitmaker.com:/home/admin/opencircuitmaker-website/www/ocm/db.sqlite3 /home/david/opencircuitmaker-website/www/ocm/db.sqlite3
+```
+
+### Copy the local dev machine database to the  website
+
+Run this from a bash terminal sesion on the local Debian development machine.
+
+```bash
+scp -r /home/localusername/opencircuitmaker-website/www/ocm/db.sqlite3 adminusername@opencircuitmaker.com:/home/adminusername/opencircuitmaker-website/www/ocm/db.sqlite3
+```
+
+## Configure the web server for Django
+
+```bash
+nano /etc/apache2/sites-available/000-default.conf
+```
+
+Add this text:
+
+```
+<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin admin@opencircuitmaker.com
+        ServerName opencircuitmaker.com
+        ServerAlias www.opencircuitmaker.com
+
+        DocumentRoot /var/www/opencircuitmaker-website/www/ocm/
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/opencircuitmaker_error.log
+        CustomLog ${APACHE_LOG_DIR}/opencircuitmaker_access.log combined
+
+        Alias /static /var/www/opencircuitmaker-website/www/ocm/static
+        <Directory /var/www/opencircuitmaker-website/www/ocm/static>
+                Require all granted
+        </Directory>
+
+        Alias /media /var/www/opencircuitmaker-website/www/ocm/media
+        <Directory /var/www/opencircuitmaker-website/www/ocm/media>
+                Require all granted
+        </Directory>
+
+        <Directory /var/www/opencircuitmaker-website/www/ocm/ocm>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess website python-path=/var/www/opencircuitmaker-website/www/ocm python-home=/var/www/opencircuitmaker-website/django-venv
+        WSGIProcessGroup website
+        WSGIScriptAlias / /var/www/opencircuitmaker-website/www/ocm/ocm/wsgi.py
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+RewriteEngine on
+RewriteCond %{SERVER_NAME} =www.opencircuitmaker.com [OR]
+RewriteCond %{SERVER_NAME} =opencircuitmaker.com
+RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>
+```
+
+
+```bash
+nano /etc/apache2/sites-available/000-default-le-ssl.conf
+```
+
+Add this text:
+
+```
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin admin@opencircuitmaker.com
+        ServerName opencircuitmaker.com
+        ServerAlias www.opencircuitmaker.com
+
+        DocumentRoot /var/www/opencircuitmaker-website/www/ocm/
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/opencircuitmaker.com_error.log
+        CustomLog ${APACHE_LOG_DIR}/opencircuitmaker.com_access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+
+       Alias /static /var/www/opencircuitmaker-website/www/ocm/static
+        <Directory /var/www/opencircuitmaker-website/www/ocm/static>
+                Require all granted
+        </Directory>
+
+        Alias /media /var/www/opencircuitmaker-website/www/ocm/media
+        <Directory /var/www/opencircuitmaker-website/www/ocm/media>
+                Require all granted
+         </Directory>
+
+        <Directory /var/www/opencircuitmaker-website/www/ocm/ocm>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess django_app python-path=/var/www/opencircuitmaker-website/www/ocm python-home=/var/www/opencircuitmaker-website/django-venv
+        WSGIProcessGroup website
+        WSGIScriptAlias / /var/www/opencircuitmaker-website/www/ocm/ocm/wsgi.py
+
+
+
+Include /etc/letsencrypt/options-ssl-apache.conf
+SSLCertificateFile /etc/letsencrypt/live/opencircuitmaker.com/fullchain.pem
+SSLCertificateKeyFile /etc/letsencrypt/live/opencircuitmaker.com/privkey.pem
+</VirtualHost>
+</IfModule>
+```
+
+### Allow www-data access to the database
+
+These are both needed so that the database is usable by Apache2 and Django.
+
+```bash
+chown www-data: /var/www/opencircuitmaker-website/www/ocm/db.sqlite3
+chown www-data: /var/www/opencircuitmaker-website/www/ocm/
+```
+
+### Enable the Django virtual host:
+
+```bash
+sudo a2ensite 000-default.conf
+sudo a2ensite 000-default-le-ssl.conf
+sudo systemctl restart apache2
+sudo systemctl status apache2
+```
+
+### Test and then disable debug
+
+Verify the site runs, even log in as admin by opening the URL with /admin appended.
+
+**Warning** it is best to disable debug in settings.py.
+
+See [Django Debug Info](https://docs.djangoproject.com/en/4.2/ref/settings/#debug)
+
+Edit the file and change DEBUG = True to DEBUG = False
+
+```bash
+nano /var/www/opencircuitmaker-website/www/ocm/ocm/settings.py
+```
+
+After doing so, the site will give "Not Found" when accessed, at least until some content is added via python.
