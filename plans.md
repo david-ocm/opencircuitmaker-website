@@ -12,7 +12,7 @@ See also:
 - [ ] Login control via navbar
 - [ ] Site search via navbar
 
-# TODO
+## TODO
 
 - [ ] Modify navbar to show login
 - [ ] Respond to login
