@@ -1,17 +1,29 @@
-# django website notes
+# Django website notes
 
-Notes on building the website using django.
+Steps to create the website are mostly documented here.
+
+See also:
+
+[Django website notes](README.md)<br>
+[Navigation bar notes](navbar.md)<br>
+[Plans](../plans.md)<br>
+[Defects](../defects.md)<br>
+[Repository README](../README.md)
 
 ## Development machine
 
-The Debian 12 Linux was for development.
+The Debian Linux distribution was for development and for the server.
 
-On the web server itself, a virtual environment is **not** used.
+### Text editors
+
+For simple edits from a terminal use nano or vi.
+
+For something more like an integrated development environment (IDE), [VSCodium](https://vscodium.com/) was used.
 
 ### Create a virtual environment before installing django etc.
 
 ```bash
-sudo apt install python3-venv
+apt install python3-venv
 python -m venv ~/ocm-virt
 ```
 
@@ -19,7 +31,9 @@ python -m venv ~/ocm-virt
 
 Activate the virtenv:
 
-    source ~/ocm-virt/bin/activate
+```bash
+source ~/ocm-virt/bin/activate
+```
 
 Should see the terminal prompt now prefixed by '(ocm-virt)`.
 
@@ -38,15 +52,19 @@ python manage.py startapp website
 
 ### Edit settings
 
-        nano ocm/settings.py
+```bash
+nano ocm/settings.py
+```
 
-Add an element to the list INSTALLED_APPS []
+Add an element to the list INSTALLED_APPS [] named 'website'.
 
-        'website',
+Set allowed hosts to include the URL, IP and localhost addresses, which will enable to run the site both from a server and from a local development machine without changes.
 
-Set allowed hosts:
+```python
+ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "aaa.bbb.ccc.ddd", "127.0.0.1"]
+```
 
-        ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "172.187.182.84", "127.0.0.1"]
+For entry "aaa.bbb.ccc.ddd" use the IP address of the server, a fictitious example is "1.2.3.4"
 
 ### Migrate
 
@@ -70,7 +88,7 @@ Then run the site and access it with /admin URL.
 
 ### .gitignore the database, virenv and __pycache__
 
-The database is content not code.
+Because the database is content not code, and these folders would muddy up the repository.
 
 The __pycache__ is not needed in the git repo.
 
@@ -96,8 +114,8 @@ django-venv/
 
 ### Server prerequisites
 
-1. Debian 12 or equivalent installed, using a cloud provider, home machine etc.
-2. Logged into the server with an account that has sudo via ssh.
+1. Debian Linux or equivalent installed
+2. Logged into the server as root.
 3. A minimal site is already running using Apache2, to test DNS, HTTPS etc.
 4. Python3 is installed on the server.
 
@@ -130,14 +148,14 @@ django-venv/
 - check the server
 
 ```bash
-sudo systemctl status apache2
+systemctl status apache2
 ```
 
 
 - If there is a message "AH00558: apache2: Could not reliably determine the server's fully qualified domain name" do the following
 
 ```bash
-sudo nano /etc/apache2/apache2.conf
+nano /etc/apache2/apache2.conf
 ```
 
 Find the line with comment similar to this, and add the "ServerName 127.0.0.1".
@@ -149,8 +167,8 @@ Find the line with comment similar to this, and add the "ServerName 127.0.0.1".
 Now restart apache and check again:
 
 ```bash
-sudo systemctl restart apache2
-sudo systemctl status apache2
+systemctl restart apache2
+systemctl status apache2
 ```
 
 ### Update the operating system
@@ -160,8 +178,8 @@ Check for and apply operating system updates, then reboot the server.
 If there were no updates, skip the reboot.
 
 ```bash
-sudo apt update && sudo apt upgrade -y
-sudo systemctl reboot
+apt update && apt upgrade -y
+systemctl reboot
 ```
 
 ### Install mod_wsgi module
@@ -169,15 +187,15 @@ sudo systemctl reboot
 Install then restart apache2.
 
 ```bash
-sudo apt install libapache2-mod-wsgi-py3
-sudo systemctl restart apache2
+apt install libapache2-mod-wsgi-py3
+systemctl restart apache2
 ```
 
 ### Install pip and venv
 
 ```bash
-sudo apt install python3-pip
-sudo apt install python3-venv
+apt install python3-pip
+apt install python3-venv
 ```
 
 ### clone site code from GitHub
@@ -413,10 +431,10 @@ chown www-data: /var/www/opencircuitmaker-website/www/ocm/
 ### Enable the Django virtual host:
 
 ```bash
-sudo a2ensite 000-default.conf
-sudo a2ensite 000-default-le-ssl.conf
-sudo systemctl restart apache2
-sudo systemctl status apache2
+a2ensite 000-default.conf
+a2ensite 000-default-le-ssl.conf
+systemctl restart apache2
+systemctl status apache2
 ```
 
 ### Test and then disable debug
@@ -488,7 +506,7 @@ Now that the local development and remote server can share code via GitHub, it i
 
 All of this is done on the development machine, pushed to GitHub, then pulled to the remote server when ready to deploy.
 
-Use [VSCodium](https://vscodium.com/) to open the directory  opencircuitmaker-website/. You can get VSCodium via flatpak/flathub etc.
+Use VSCodium  to open the directory  opencircuitmaker-website/.
 
 ### Edit www/ocm/urls.py.
 
@@ -541,7 +559,7 @@ Create a directory www/ocm/website/templates/ and in it create a file home.html:
 
 ### Create a template to reuse across all website pages
 
-In templates/ create base.html.
+In website/templates/ create base.html.
 
 Go to [Bootstrap](https://getbootstrap.com/), select Docs and scroll down to the section "Include Bootstrap's CSS and JS". Copy the code into base.html.
 
@@ -571,3 +589,37 @@ Then surround the existing html with:
 {% endblock %}
 ```
 
+### Make the template nicer
+
+Add a line break before and wrap the content block in a divider (div).
+
+In website/templates/base.html:
+
+```html
+    <div class="container">
+        <br/>
+        {% block content %}
+
+        {% endblock %}
+    </div>
+```
+
+### Add a navigation bar
+
+Create a new file website/templates/navbar.html:
+
+Go back to [Bootstrap](https://getbootstrap.com/), select Docs, then scroll down on the left side to Components, Navbar.
+
+Select a Navbar and copy in the html code.
+
+In website/templates/base.html add at the top of body:
+
+```html
+{% include 'navbar.html' %}
+```
+
+Try it out on the server. 
+
+## Further reading
+
+[Navigation bar notes](./navbar.md)
