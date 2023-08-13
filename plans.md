@@ -9,10 +9,15 @@ See also:
 
 ## Features
 
+- [ ] FAQ
 - [ ] Login control via navbar
 - [ ] Site search via navbar
+- [ ] Bottom bar for less frequently accessed items
 
 ## TODO
 
+- [X] Create LICENSE
+- [ ] FAQ entry about license
+- [ ] Add copyright notice to sources
 - [ ] Modify navbar to show login
 - [ ] Respond to login

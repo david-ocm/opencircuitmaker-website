@@ -37,7 +37,25 @@ To:
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 ```
 
-### Add a login item
+### Remove unused parts
+
+In [navbar.html](../www/ocm/website/templates/navbar.html) remove:
+
+```html
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+```
+
+Also remove:
+```html
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+```
+
+### Add an FAQ item
 
 In [navbar.html](../www/ocm/website/templates/navbar.html) change from:
 
@@ -51,6 +69,39 @@ To:
 
 ```html
 <li class="nav-item">
-  <a class="nav-link" aria-disabled="true">Login</a>
+    <a class="nav-link" href = {% url 'faq' %}>FAQ</a>
 </li>
 ```
+In [views.py](../www/ocm/website/views.py) add:
+
+```python
+def faq(request):
+    return render(request, 'faq.html', {})
+```
+
+In templates, create a file [faq.html](../www/ocm/website/templates/faq.html):
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Frequently asked questions</h1>
+Why is this here?<br/>
+
+{% endblock %}
+```
+
+In [urls.py](../www/ocm/website/urls.py) change urlpatterns thus:
+
+```python
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('/faq', views.faq, name='faq'),
+]
+```
+
+### Add a "view" for the FAQ item
+
+Django uses a function referred to as a "view" for links.
+
+In [navbar.html](../www/ocm/website/templates/navbar.html) change from:
