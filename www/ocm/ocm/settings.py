@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-i#putg!rescr3cmf017krewzqd5$8qx+d7ykh@3c=baqf)my+l
 DEBUG = False
 
 # include 127.0.0.1 for debugging on the development server for example
-ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "172.187.182.84", "127.0.0.1"]
+ALLOWED_HOSTS = ["www.opencircuitmaker.com", "opencircuitmaker.com", "127.0.0.1"]
 
 
 # Application definition
